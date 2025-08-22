@@ -38,12 +38,18 @@ func Encode(data []byte) string {
 	// But we need to preserve the two leading zeros
 	// So we add "11" (two '1' characters) to the front
 	// Final result: "112zW"
+	leadingZeroCount := 0
 	for _, b := range data {
 		if b == 0x00 {
-			result = "1" + result
+			leadingZeroCount++
 		} else {
 			break
 		}
+	}
+
+	// Add '1' characters for each leading zero
+	for i := 0; i < leadingZeroCount; i++ {
+		result = "1" + result
 	}
 
 	return result

@@ -90,27 +90,35 @@ func main() {
 }
 ```
 
-### Bitcoin Address Examples
+### Working with Hex Strings
+
+**Important Note**: When comparing with online Base58 encoders, be aware that they often interpret input as hex strings:
 
 ```go
 package main
 
 import (
     "fmt"
+    "encoding/hex"
     "github.com/neverDefined/cryptography-playground/pkg/base58"
 )
 
 func main() {
-    // Bitcoin mainnet address (version 0x00)
-    mainnetPayload := []byte{0x60, 0x23, 0xBD, 0x3F, 0x2B, 0x3B, 0xE1, 0x3C, 0x4F, 0x5A, 0x49, 0xFD, 0x7E, 0x08, 0x10, 0xA8, 0xE4, 0x3D, 0x81, 0x26}
-    mainnetAddress := base58.Base58CheckEncode(0x00, mainnetPayload)
-    fmt.Printf("Bitcoin mainnet: %s\n", mainnetAddress)
-    // Output: "19mLgd5RjgEcyGfnj5ra4gW8FjtvLc2Adr"
-
-    // Bitcoin testnet address (version 0x6F)
-    testnetAddress := base58.Base58CheckEncode(0x6F, mainnetPayload)
-    fmt.Printf("Bitcoin testnet: %s\n", testnetAddress)
-    // Output: "mpHHygAQYhfskP9QSepwtbiT7jVdFgjEA8"
+    // Online encoder input: "000000ab34" (hex string)
+    // This represents 5 bytes: [0x00, 0x00, 0x00, 0xab, 0x34]
+    hexString := "000000ab34"
+    bytes, _ := hex.DecodeString(hexString)
+    
+    fmt.Printf("Hex string: %s\n", hexString)
+    fmt.Printf("As bytes: %v\n", bytes)
+    fmt.Printf("Base58 encoded: %s\n", base58.Encode(bytes))
+    // Output: "111E2f"
+    
+    // Direct byte array (6 bytes)
+    directBytes := []byte{0x00, 0x00, 0x00, 0x00, 0xab, 0x34}
+    fmt.Printf("Direct bytes: %v\n", directBytes)
+    fmt.Printf("Base58 encoded: %s\n", base58.Encode(directBytes))
+    // Output: "1111E2f" (note the extra '1')
 }
 ```
 
@@ -220,30 +228,6 @@ The package uses the standard Base58 alphabet:
 
 **Note:** Characters `0`, `O`, `I`, and `l` are excluded to prevent confusion.
 
-## Error Handling
-
-The package provides comprehensive error handling:
-
-```go
-// Invalid Base58 characters
-decoded, err := base58.Decode("invalid!@#")
-if err != nil {
-    fmt.Printf("Error: %v\n", err) // "invalid character: !"
-}
-
-// Invalid Base58Check (checksum mismatch)
-payload, version, err := base58.Base58CheckDecode("corrupted_string")
-if err != nil {
-    fmt.Printf("Error: %v\n", err) // "checksum validation failed"
-}
-
-// Too short Base58Check string
-payload, version, err := base58.Base58CheckDecode("1234")
-if err != nil {
-    fmt.Printf("Error: %v\n", err) // "Base58Check string too short"
-}
-```
-
 ## Testing
 
 Run the test suite:
@@ -269,6 +253,7 @@ The package includes tests for:
 - ✅ Error cases (invalid characters, short strings)
 - ✅ Round-trip validation (encode → decode → verify)
 - ✅ Real-world Bitcoin address examples
+- ✅ Hex string compatibility with online encoders
 
 ## Use Cases
 
@@ -297,7 +282,13 @@ The package includes tests for:
 - Critical for cryptographic applications where zero count is significant
 - Each leading `0x00` byte becomes a `'1'` character in Base58
 
-## References
+## Performance
+
+The implementation uses:
+- **Big integer arithmetic** for Base58 conversion
+- **Standard library SHA256** for checksum calculation
+- **Efficient string operations** for alphabet indexing
+- **Minimal memory allocations** for typical use case## References
 
 - [Bitcoin Base58Check Encoding](https://en.bitcoin.it/wiki/Base58Check_encoding)
 - [RFC 4648 - Base Encoding](https://tools.ietf.org/html/rfc4648)
