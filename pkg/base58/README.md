@@ -297,26 +297,6 @@ The package includes tests for:
 - Critical for cryptographic applications where zero count is significant
 - Each leading `0x00` byte becomes a `'1'` character in Base58
 
-## Performance
-
-The implementation uses:
-- **Big integer arithmetic** for Base58 conversion
-- **Standard library SHA256** for checksum calculation
-- **Efficient string operations** for alphabet indexing
-- **Minimal memory allocations** for typical use cases
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
-
-## License
-
-This project is open source. Please check the LICENSE file for details.
-
 ## References
 
 - [Bitcoin Base58Check Encoding](https://en.bitcoin.it/wiki/Base58Check_encoding)
