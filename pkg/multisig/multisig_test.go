@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/btcsuite/btcd/btcec/v2"
+	"github.com/neverDefined/cryptography-playground/pkg/arithmetic"
 )
 
 // TestMultisigSetup tests the creation and validation of multisignature setups
@@ -239,7 +240,7 @@ func TestSignAndVerifyMultisig(t *testing.T) {
 func TestUtilityFunctions(t *testing.T) {
 	// Test ToBytes32
 	input := []byte{1, 2, 3}
-	result := ToBytes32(input)
+	result := arithmetic.ToBytes32(input)
 	if len(result) != 32 {
 		t.Errorf("Expected 32 bytes, got %d", len(result))
 	}
@@ -249,7 +250,7 @@ func TestUtilityFunctions(t *testing.T) {
 
 	// Test ModN
 	x := new(big.Int).SetInt64(1000)
-	resultInt := ModN(x)
+	resultInt := arithmetic.ModN(x)
 	if resultInt.Cmp(N) >= 0 {
 		t.Error("ModN result should be less than N")
 	}
@@ -257,25 +258,25 @@ func TestUtilityFunctions(t *testing.T) {
 	// Test AddModN
 	a := new(big.Int).SetInt64(100)
 	b := new(big.Int).SetInt64(200)
-	sum := AddModN(a, b)
+	sum := arithmetic.AddModN(a, b)
 	if sum.Cmp(N) >= 0 {
 		t.Error("AddModN result should be less than N")
 	}
 
 	// Test MulModN
-	product := MulModN(a, b)
+	product := arithmetic.MulModN(a, b)
 	if product.Cmp(N) >= 0 {
 		t.Error("MulModN result should be less than N")
 	}
 
 	// Test NegModN
-	neg := NegModN(a)
+	neg := arithmetic.NegModN(a)
 	if neg.Cmp(N) >= 0 {
 		t.Error("NegModN result should be less than N")
 	}
 
 	// Test RandScalar
-	scalar, err := RandScalar()
+	scalar, err := arithmetic.RandScalar()
 	if err != nil {
 		t.Fatalf("RandScalar failed: %v", err)
 	}

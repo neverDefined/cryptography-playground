@@ -1,20 +1,12 @@
 package multisig
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
 	"errors"
-	"math/big"
 
 	"github.com/btcsuite/btcd/btcec/v2"
 	btcschnorr "github.com/btcsuite/btcd/btcec/v2/schnorr"
-)
-
-var (
-	// CURVE is the secp256k1 curve used for Bitcoin
-	CURVE = btcec.S256()
-	// N is the order of the secp256k1 curve
-	N = CURVE.N // 	N:        fromHex("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"),
+	"github.com/neverDefined/cryptography-playground/pkg/arithmetic"
 )
 
 // Participant represents a participant in a multisignature scheme
@@ -47,67 +39,12 @@ type CompleteSignature struct {
 	Indices []int      // Indices of participants who signed
 }
 
-// ToBytes32 converts a byte slice to a 32-byte slice, padding with zeros if necessary
-//
-// This function is useful for converting variable-length byte slices to fixed-length
-// 32-byte slices, which is required for many cryptographic operations.
-//
-// Example:
-//
-//	ToBytes32([]byte{1, 2, 3}) -> [0x00,0x00 ... 0x01, 0x02, 0x03]
-func ToBytes32(b []byte) [32]byte {
-	var out [32]byte
-	copy(out[32-len(b):], b)
-	return out
-}
-
-// ModN performs modular arithmetic with the curve order N
-//
-// This ensures that all values are within the valid range for the secp256k1 curve.
-// If the result is negative, it adds N to make it positive.
-func ModN(x *big.Int) *big.Int {
-	x.Mod(x, N)
-	if x.Sign() < 0 {
-		x.Add(x, N)
-	}
-	return x
-}
-
-// AddModN adds two big integers modulo N
-func AddModN(a, b *big.Int) *big.Int {
-	out := new(big.Int).Add(a, b)
-	return ModN(out)
-}
-
-// MulModN multiplies two big integers modulo N
-func MulModN(a, b *big.Int) *big.Int {
-	out := new(big.Int).Mul(a, b)
-	return ModN(out)
-}
-
-// NegModN negates a big integer modulo N
-func NegModN(a *big.Int) *big.Int {
-	out := new(big.Int).Sub(N, a)
-	return ModN(out)
-}
-
-// RandScalar generates a random scalar (private key) for the secp256k1 curve
-//
-// This function generates a cryptographically secure random number that is
-// suitable for use as a private key or nonce in cryptographic operations.
-func RandScalar() (*big.Int, error) {
-	for {
-		var buf [32]byte
-		if _, err := rand.Read(buf[:]); err != nil {
-			return nil, err
-		}
-		k := new(big.Int).SetBytes(buf[:])
-		k.Mod(k, N)
-		if k.Sign() != 0 {
-			return k, nil
-		}
-	}
-}
+var (
+	// CURVE is the secp256k1 curve used for Bitcoin
+	CURVE = arithmetic.GetCurve()
+	// N is the order of the secp256k1 curve
+	N = arithmetic.GetCurveOrder()
+)
 
 // NewMultisigSetup creates a new multisignature setup with the given participants
 //
@@ -187,7 +124,7 @@ func CreatePartialSignature(msg []byte, participant *Participant, setup *Multisi
 	copy(S[:], sigBytes[32:])
 
 	// Get x-only public key
-	pubKey32 := ToBytes32(participant.PublicKey.SerializeCompressed()[1:])
+	pubKey32 := arithmetic.ToBytes32(participant.PublicKey.SerializeCompressed()[1:])
 
 	return &PartialSignature{
 		R:      R,

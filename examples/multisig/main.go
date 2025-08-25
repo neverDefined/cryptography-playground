@@ -7,6 +7,7 @@ import (
 	"math/big"
 
 	"github.com/btcsuite/btcd/btcec/v2"
+	"github.com/neverDefined/cryptography-playground/pkg/arithmetic"
 	"github.com/neverDefined/cryptography-playground/pkg/multisig"
 )
 
@@ -96,21 +97,21 @@ func main() {
 
 	// Test ToBytes32
 	input := []byte{1, 2, 3, 4, 5}
-	result := multisig.ToBytes32(input)
+	result := arithmetic.ToBytes32(input)
 	fmt.Printf("   ToBytes32([1,2,3,4,5]): %x\n", result)
 
 	// Test modular arithmetic
 	a := new(big.Int).SetInt64(100)
 	b := new(big.Int).SetInt64(200)
-	sum := multisig.AddModN(a, b)
-	product := multisig.MulModN(a, b)
-	neg := multisig.NegModN(a)
+	sum := arithmetic.AddModN(a, b)
+	product := arithmetic.MulModN(a, b)
+	neg := arithmetic.NegModN(a)
 	fmt.Printf("   AddModN(100, 200): %s\n", sum.String())
 	fmt.Printf("   MulModN(100, 200): %s\n", product.String())
 	fmt.Printf("   NegModN(100): %s\n", neg.String())
 
 	// Test random scalar generation
-	scalar, err := multisig.RandScalar()
+	scalar, err := arithmetic.RandScalar()
 	if err != nil {
 		log.Fatal(err)
 	}
